@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Millionaire Tracker — polling</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Public+Sans:wght@400;600&family=Space+Grotesk:wght@700&display=swap">
+<style>
+:root{
+ --bone:#EFEDE4;--ink:#23241F;--rule-grey:#A9A79C;--ledger-red:#8B3A3A;--line-inv:#4A4C43;
+ --decrease-3:#2F4B3B;--decrease-2:#6F8F76;--decrease-1:#B3C7B7;--neutral:#B7B4A6;
+ --increase-1:#D3B3B3;--increase-2:#B08282;--increase-3:#8B3A3A;--dontknow:#6E6F64;
+ --display:"Space Grotesk","Helvetica Neue",Arial,sans-serif;
+ --body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+ --mono:"IBM Plex Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--ink)}
+#stage{position:relative;width:100%;height:100%;overflow:hidden}
+#track{width:100%;height:100%;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;-ms-overflow-style:none}
+#track::-webkit-scrollbar{width:0;height:0}
+.slide{width:100%;height:100%;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;overflow:hidden;padding-right:46px}
+.scaler{width:1920px;height:1080px;flex:none;transform:scale(var(--s,0.5))}
+article{width:1920px;height:1080px;padding:84px 104px 72px;background:var(--ink);color:var(--bone);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.mark{position:absolute;top:84px;right:104px;width:239px;text-align:right}
+.mark span{display:block;line-height:1}
+.tagline{font-family:var(--body);font-weight:400;font-size:14.6px;letter-spacing:.05em;color:var(--rule-grey);margin-bottom:3px}
+.word{font-family:var(--display);font-weight:700;font-size:48px;letter-spacing:.01em;color:var(--bone)}
+h1{font-family:var(--display);font-weight:700;font-size:78px;line-height:1.1;letter-spacing:.01em;max-width:1480px;margin:0}
+.desc{font-family:var(--body);font-weight:400;font-size:40px;line-height:1.45;max-width:1500px;margin:30px 0 0}
+.desc strong{font-weight:600}
+.spacer{flex:1;min-height:36px}
+.q{font-family:var(--mono);font-weight:500;font-size:31px;line-height:1.35;letter-spacing:.02em;color:var(--rule-grey);max-width:1620px;margin:0;border-top:2px solid var(--line-inv);padding-top:22px}
+.cond{font-family:var(--mono);font-weight:500;font-size:27px;letter-spacing:.1em;text-transform:uppercase;line-height:1.2;color:var(--rule-grey);margin:26px 0 0}
+.bar{display:flex;width:100%;height:104px;flex:none;margin-top:26px}
+.bar.pair{height:69px}
+.cond + .bar{margin-top:14px}
+.seam{width:3px;flex:none;background:var(--ink)}
+.seg{height:100%;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.seg span{font-family:var(--mono);font-weight:700;font-size:34px;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.t-decrease-3{background:var(--decrease-3)}.t-decrease-3 span{color:var(--bone)}
+.t-decrease-2{background:var(--decrease-2)}.t-decrease-2 span{color:var(--ink)}
+.t-decrease-1{background:var(--decrease-1)}.t-decrease-1 span{color:var(--ink)}
+.t-neutral{background:var(--neutral)}.t-neutral span{color:var(--ink)}
+.t-increase-1{background:var(--increase-1)}.t-increase-1 span{color:var(--ink)}
+.t-increase-2{background:var(--increase-2)}.t-increase-2 span{color:var(--ink)}
+.t-increase-3{background:var(--increase-3)}.t-increase-3 span{color:var(--bone)}
+.t-dontknow{background:var(--dontknow)}.t-dontknow span{color:var(--bone)}
+.legend{list-style:none;margin:34px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:13px 42px}
+.legend li{display:flex;align-items:center;gap:14px}
+.sw{width:26px;height:26px;flex:none;display:block}
+.lb{font-family:var(--mono);font-weight:400;font-size:29px;letter-spacing:.03em;line-height:1.3;color:var(--bone);white-space:nowrap}
+footer{border-top:2px solid var(--line-inv);margin-top:40px;padding-top:18px;display:flex;justify-content:flex-end}
+footer span{font-family:var(--mono);font-size:30px;letter-spacing:.02em;color:var(--bone);white-space:nowrap}
+#rail{position:absolute;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;z-index:3}
+#rail button{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.1em;padding:5px 4px;background:none;border:0;border-bottom:2px solid transparent;color:var(--rule-grey);cursor:pointer}
+#rail button.on{color:var(--bone);border-bottom-color:var(--ledger-red)}
+</style></head>
+<body>
+<div id="stage">
+<div id="track">
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>Aspiration is near-universal.</h1>
+<p class="desc"><strong>81%</strong> agree people should be able to keep more of what they earn and pass it on to their children.</p>
+<div class="spacer"></div>
+<p class="q">To what extent do you agree or disagree: “People should be able to keep more of what they earn and pass it on to their children.”</p>
+<div class="bar"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.41)" title="Strongly agree: 41%"><span>41%</span></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.4)" title="Agree: 40%"><span>40%</span></div><span class="seam"></span><div class="seg t-neutral" style="width:calc((100% - 15px) * 0.14)" title="Neutral: 14%"><span>14%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.03)" title="Disagree: 3%"></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.01)" title="Strongly disagree: 1%"></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.01)" title="Don’t know: 1%"></div></div>
+
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Strongly agree</span></li><li><span class="sw t-decrease-2"></span><span class="lb">Agree</span></li><li><span class="sw t-neutral"></span><span class="lb">Neutral</span></li><li><span class="sw t-increase-2"></span><span class="lb">Disagree — 3%</span></li><li><span class="sw t-increase-3"></span><span class="lb">Strongly disagree — 1%</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know — 1%</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>The public rejects taxing the family home.</h1>
+<p class="desc"><strong>66%</strong> oppose the idea that a family home passed from parents to children on death should be taxed.</p>
+<div class="spacer"></div>
+<p class="q">How strongly do you support/oppose the following statement: “A family home passed from parents to children when a parent dies should be taxed”</p>
+<div class="bar"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.39)" title="Strongly oppose: 39%"><span>39%</span></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.27)" title="Oppose: 27%"><span>27%</span></div><span class="seam"></span><div class="seg t-neutral" style="width:calc((100% - 15px) * 0.14)" title="Neutral: 14%"><span>14%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.12)" title="Support: 12%"><span>12%</span></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.06)" title="Strongly support: 6%"><span>6%</span></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.03)" title="Don’t know: 3%"></div></div>
+
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Strongly oppose</span></li><li><span class="sw t-decrease-2"></span><span class="lb">Oppose</span></li><li><span class="sw t-neutral"></span><span class="lb">Neutral</span></li><li><span class="sw t-increase-2"></span><span class="lb">Support</span></li><li><span class="sw t-increase-3"></span><span class="lb">Strongly support</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know — 3%</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>Voters think the wealthiest already pay their share.</h1>
+<p class="desc"><strong>69%</strong> say the top 1% (who fund ~29% of all income tax) pay their fair share or more. Only <strong>23%</strong> say they pay too little.</p>
+<div class="spacer"></div>
+<p class="q">The wealthiest 1% of earners pay around 29% of all income tax in the UK. Does that feel like…?</p>
+<div class="bar"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.07)" title="Far more than their fair share: 7%"><span>7%</span></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.19)" title="More than their fair share: 19%"><span>19%</span></div><span class="seam"></span><div class="seg t-decrease-1" style="width:calc((100% - 15px) * 0.43)" title="About right: 43%"><span>43%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.17)" title="Too little: 17%"><span>17%</span></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.07)" title="Far too little: 7%"><span>7%</span></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.08)" title="Don’t know: 8%"><span>8%</span></div></div>
+
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Far more than their fair share</span></li><li><span class="sw t-decrease-2"></span><span class="lb">More than their fair share</span></li><li><span class="sw t-decrease-1"></span><span class="lb">About right</span></li><li><span class="sw t-increase-2"></span><span class="lb">Too little</span></li><li><span class="sw t-increase-3"></span><span class="lb">Far too little</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>Support for a wealth tax is soft.</h1>
+<p class="desc">Support for a wealth tax collapses from <strong>61%</strong> to <strong>37%</strong> once people are told it could drive the wealthy abroad and cut revenue for public services.</p>
+<div class="spacer"></div>
+<p class="q">To what extent do you support or oppose a new annual “wealth tax” on individuals with assets over £10 million?</p>
+<div class="bar pair"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.06)" title="Strongly oppose: 6%"><span>6%</span></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.1)" title="Oppose: 10%"><span>10%</span></div><span class="seam"></span><div class="seg t-neutral" style="width:calc((100% - 15px) * 0.2)" title="Neutral: 20%"><span>20%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.34)" title="Support: 34%"><span>34%</span></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.28)" title="Strongly support: 28%"><span>28%</span></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.03)" title="Don’t know: 3%"></div></div>
+<p class="cond">And if wealthy people left, so revenue fell</p><div class="bar pair"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.1)" title="Strongly oppose: 10%"><span>10%</span></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.19)" title="Oppose: 19%"><span>19%</span></div><span class="seam"></span><div class="seg t-neutral" style="width:calc((100% - 15px) * 0.28)" title="Neutral: 28%"><span>28%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.25)" title="Support: 25%"><span>25%</span></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.12)" title="Strongly support: 12%"><span>12%</span></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.07)" title="Don’t know: 7%"><span>7%</span></div></div>
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Strongly oppose</span></li><li><span class="sw t-decrease-2"></span><span class="lb">Oppose</span></li><li><span class="sw t-neutral"></span><span class="lb">Neutral</span></li><li><span class="sw t-increase-2"></span><span class="lb">Support</span></li><li><span class="sw t-increase-3"></span><span class="lb">Strongly support</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know — 3% / 7%</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>Voters intuitively grasp the flight risk.</h1>
+<p class="desc"><strong>64%</strong> say taxes on ordinary people would rise if large numbers of wealthy people left the UK.</p>
+<div class="spacer"></div>
+<p class="q">If large numbers of wealthy people left the UK, what do you think would happen to the amount of tax that ordinary people have to pay?</p>
+<div class="bar"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.31)" title="Rise a lot: 31%"><span>31%</span></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.33)" title="Rise a little: 33%"><span>33%</span></div><span class="seam"></span><div class="seg t-neutral" style="width:calc((100% - 15px) * 0.19)" title="No change: 19%"><span>19%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.05)" title="Fall a little: 5%"></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.02)" title="Fall a lot: 2%"></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.09)" title="Don’t know: 9%"><span>9%</span></div></div>
+
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Rise a lot</span></li><li><span class="sw t-decrease-2"></span><span class="lb">Rise a little</span></li><li><span class="sw t-neutral"></span><span class="lb">No change</span></li><li><span class="sw t-increase-2"></span><span class="lb">Fall a little — 5%</span></li><li><span class="sw t-increase-3"></span><span class="lb">Fall a lot — 2%</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>Inheritance tax is underwater.</h1>
+<p class="desc"><strong>45%</strong> oppose the UK’s inheritance tax versus only <strong>25%</strong> who support it — public backing for cutting or abolishing it.</p>
+<div class="spacer"></div>
+<p class="q">To what extent do you support or oppose the UK’s inheritance tax?</p>
+<div class="bar"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.21)" title="Strongly oppose: 21%"><span>21%</span></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.24)" title="Oppose: 24%"><span>24%</span></div><span class="seam"></span><div class="seg t-neutral" style="width:calc((100% - 15px) * 0.24)" title="Neutral: 24%"><span>24%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.18)" title="Support: 18%"><span>18%</span></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.07)" title="Strongly support: 7%"><span>7%</span></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.07)" title="Don’t know: 7%"><span>7%</span></div></div>
+
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Strongly oppose</span></li><li><span class="sw t-decrease-2"></span><span class="lb">Oppose</span></li><li><span class="sw t-neutral"></span><span class="lb">Neutral</span></li><li><span class="sw t-increase-2"></span><span class="lb">Support</span></li><li><span class="sw t-increase-3"></span><span class="lb">Strongly support</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>The ‘hostile to success’ framing lands.</h1>
+<p class="desc"><strong>53%</strong> agree Britain has become a hostile place for people who want to build wealth and be successful.</p>
+<div class="spacer"></div>
+<p class="q">To what extent do you agree or disagree: “The UK has become a hostile place for people who want to build wealth and be successful.”</p>
+<div class="bar"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.22)" title="Strongly agree: 22%"><span>22%</span></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.31)" title="Agree: 31%"><span>31%</span></div><span class="seam"></span><div class="seg t-neutral" style="width:calc((100% - 15px) * 0.23)" title="Neutral: 23%"><span>23%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.15)" title="Disagree: 15%"><span>15%</span></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.06)" title="Strongly disagree: 6%"><span>6%</span></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.03)" title="Don’t know: 3%"></div></div>
+
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Strongly agree</span></li><li><span class="sw t-decrease-2"></span><span class="lb">Agree</span></li><li><span class="sw t-neutral"></span><span class="lb">Neutral</span></li><li><span class="sw t-increase-2"></span><span class="lb">Disagree</span></li><li><span class="sw t-increase-3"></span><span class="lb">Strongly disagree</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know — 3%</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>The country is split on taxing the wealthy.</h1>
+<p class="desc">Asked to choose, <strong>45%</strong> say keep taxes competitive so the wealthy stay and keep paying here, against <strong>47%</strong> who would tax them more even if some leave. A two-point gap, within the margin of error.</p>
+<div class="spacer"></div>
+<p class="q">Which comes closer to your view? (A) The wealthy should pay higher taxes even if some choose to leave the UK (B) The UK should keep taxes competitive so wealthy people stay and keep paying tax here</p>
+<div class="bar"><div class="seg t-decrease-3" style="width:calc((100% - 6px) * 0.45)" title="Keep taxes competitive so wealthy people stay and keep paying tax here: 45%"><span>45%</span></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 6px) * 0.08)" title="Don’t know: 8%"><span>8%</span></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 6px) * 0.47)" title="The wealthy should pay higher taxes even if some choose to leave the UK: 47%"><span>47%</span></div></div>
+
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Keep taxes competitive so wealthy people stay and keep paying tax here</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know</span></li><li><span class="sw t-increase-3"></span><span class="lb">The wealthy should pay higher taxes even if some choose to leave the UK</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+<section class="slide"><div class="scaler"><article>
+<div class="mark"><span class="tagline">adam smith</span><span class="word">INSIGHTS</span></div>
+<h1>An open goal on awareness.</h1>
+<p class="desc">Just <strong>16%</strong> realise the number of UK millionaires has fallen over the past year (vs <strong>44%</strong> who think it rose) — the exodus the Tracker documents is going unnoticed.</p>
+<div class="spacer"></div>
+<p class="q">As far as you know, over the past year has the number of millionaires living in the UK…?</p>
+<div class="bar"><div class="seg t-decrease-3" style="width:calc((100% - 15px) * 0.05)" title="Decreased a lot: 5%"></div><span class="seam"></span><div class="seg t-decrease-2" style="width:calc((100% - 15px) * 0.11)" title="Decreased a little: 11%"><span>11%</span></div><span class="seam"></span><div class="seg t-neutral" style="width:calc((100% - 15px) * 0.18)" title="Stayed about the same: 18%"><span>18%</span></div><span class="seam"></span><div class="seg t-increase-2" style="width:calc((100% - 15px) * 0.29)" title="Increased a little: 29%"><span>29%</span></div><span class="seam"></span><div class="seg t-increase-3" style="width:calc((100% - 15px) * 0.16)" title="Increased a lot: 16%"><span>16%</span></div><span class="seam"></span><div class="seg t-dontknow" style="width:calc((100% - 15px) * 0.22)" title="Don’t know: 22%"><span>22%</span></div></div>
+
+<ul class="legend"><li><span class="sw t-decrease-3"></span><span class="lb">Decreased a lot — 5%</span></li><li><span class="sw t-decrease-2"></span><span class="lb">Decreased a little</span></li><li><span class="sw t-neutral"></span><span class="lb">Stayed about the same</span></li><li><span class="sw t-increase-2"></span><span class="lb">Increased a little</span></li><li><span class="sw t-increase-3"></span><span class="lb">Increased a lot</span></li><li><span class="sw t-dontknow"></span><span class="lb">Don’t know</span></li></ul>
+<footer><span>insights.adamsmith.org</span></footer>
+</article></div></section>
+</div>
+<div id="rail"><button data-i="0" class="on">01</button><button data-i="1">02</button><button data-i="2">03</button><button data-i="3">04</button><button data-i="4">05</button><button data-i="5">06</button><button data-i="6">07</button><button data-i="7">08</button><button data-i="8">09</button></div>
+</div>
+<script>
+(function(){
+ var stage=document.getElementById('stage'),track=document.getElementById('track'),rail=document.getElementById('rail');
+ function fit(){
+  var w=Math.max(stage.clientWidth-46,240),h=stage.clientHeight;
+  document.documentElement.style.setProperty('--s',Math.min(w/1920,h/1080));
+ }
+ function active(){
+  var i=Math.round(track.scrollTop/(track.clientHeight||1));
+  [].forEach.call(rail.children,function(b,n){b.className=n===i?'on':'';});
+ }
+ rail.addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  track.scrollTo({top:+b.dataset.i*track.clientHeight,behavior:'smooth'});
+ });
+ track.addEventListener('scroll',active);
+ (window.ResizeObserver?new ResizeObserver(fit).observe(stage):window.addEventListener('resize',fit));
+ fit();
+})();
+</script>
+</body></html>
